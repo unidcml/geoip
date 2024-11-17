@@ -17,7 +17,7 @@ Supported `input` formats:
 
 - **cutter**: Remove data from previous steps
 - **maxmindGeoLite2CountryCSV**: Convert MaxMind GeoLite2 country CSV data to other formats
-- **maxmindMMDB**: Convert MaxMind mmdb database to other formats
+- **maxmindMMDB**: Convert MaxMind country mmdb database to other formats
 - **private**: Convert LAN and private network CIDR to other formats
 - **text**: Convert plaintext IP and CIDR to other formats
 - **v2rayGeoIPDat**: Convert V2Ray GeoIP dat to other formats
@@ -169,6 +169,8 @@ Supported `output` formats:
 
 - **type**: (required) the name of the input format
 - **action**: (required) action type, the value could be `add`(to add IP / CIDR) or `remove`(to remove IP / CIDR)
+- **args**: (optional)
+  - **onlyIPType**: (optional) the IP address type to be processed, the value is `ipv4` or `ipv6`
 
 > The default CIDRs to be added to or removed from `private`, see [private.go](https://github.com/v2fly/geoip/blob/HEAD/plugin/special/private.go#L16-L36).
 
@@ -183,6 +185,26 @@ Supported `output` formats:
 {
   "type": "private",
   "action": "remove" // remove IP or CIDR
+}
+```
+
+```jsonc
+{
+  "type": "private",
+  "action": "add",       // add IP or CIDR
+  "args": {
+    "onlyIPType": "ipv4" // add IPv4 addresses only
+  }
+}
+```
+
+```jsonc
+{
+  "type": "private",
+  "action": "remove",    // remove IP or CIDR
+  "args": {
+    "onlyIPType": "ipv6" // remove IPv6 addresses only
+  }
 }
 ```
 
@@ -339,6 +361,7 @@ Supported `output` formats:
   - **outputDir**: (optional) path to the output directory
   - **outputExtension**: (optional) the extension of the output file
   - **wantedList**: (optional, array) specified wanted lists
+  - **excludedList**: (optional, array) specified lists to be excluded when output
   - **onlyIPType**: (optional) the IP address type to output, the value is `ipv4` or `ipv6`
   - **addPrefixInLine**: (optional) the prefix to be added in each line
   - **addSuffixInLine**: (optional) the suffix to be added in each line
@@ -398,6 +421,19 @@ Supported `output` formats:
 }
 ```
 
+```jsonc
+{
+  "type": "text",
+  "action": "output",
+  "args": {
+    "outputDir": "./text",              // output files to directory ./text
+    "outputExtension": ".conf",         // the extension of the output files are .conf
+    "excludedList": ["cn", "us", "jp"], //  exclude lists called cn, us, jp when output
+    "addPrefixInLine": "HOST,"
+  }
+}
+```
+
 ### **v2rayGeoIPDat**
 
 - **type**: (required) the name of the output format
@@ -406,6 +442,7 @@ Supported `output` formats:
   - **outputName**: (optional) the output filename
   - **outputDir**: (optional) path to the output directory
   - **wantedList**: (optional, array) specified wanted lists or files
+  - **excludedList**: (optional, array) specified lists to be excluded when output
   - **onlyIPType**: (optional) the IP address type to output, the value is `ipv4` or `ipv6`
   - **oneFilePerList**: (optional) output every single list to a new file, the value is `true` or `false`(default value)
 
@@ -436,6 +473,18 @@ Supported `output` formats:
     "outputDir": "./output",                   // output to ./output directory
     "outputName": "geoip-only-cn-private.dat", // output file called geoip-only-cn-private.dat
     "wantedList": ["cn", "private"]            // only output lists called cn, private
+  }
+}
+```
+
+```jsonc
+{
+  "type": "v2rayGeoIPDat",
+  "action": "output",
+  "args": {
+    "outputDir": "./output",                      // output to ./output directory
+    "outputName": "geoip-without-cn-private.dat", // output file called geoip-without-cn-private.dat
+    "excludedList": ["cn", "private"]             // exclude lists called cn, private when output
   }
 }
 ```

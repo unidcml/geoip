@@ -7,13 +7,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/oschwald/geoip2-golang"
 	"github.com/oschwald/maxminddb-golang"
 	"github.com/v2fly/geoip/lib"
 )
 
 const (
 	typeMaxmindMMDBIn = "maxmindMMDB"
-	descMaxmindMMDBIn = "Convert MaxMind mmdb database to other formats"
+	descMaxmindMMDBIn = "Convert MaxMind country mmdb database to other formats"
 )
 
 var (
@@ -143,21 +144,10 @@ func (m *maxmindMMDBIn) generateEntries(content []byte, entries map[string]*lib.
 
 	networks := db.Networks(maxminddb.SkipAliasedNetworks)
 	for networks.Next() {
-		record := struct {
-			Country struct {
-				IsoCode string `maxminddb:"iso_code"`
-			} `maxminddb:"country"`
-			RegisteredCountry struct {
-				IsoCode string `maxminddb:"iso_code"`
-			} `maxminddb:"registered_country"`
-			RepresentedCountry struct {
-				IsoCode string `maxminddb:"iso_code"`
-			} `maxminddb:"represented_country"`
-		}{}
-
+		var record geoip2.Country
 		subnet, err := networks.Network(&record)
 		if err != nil {
-			continue
+			return err
 		}
 
 		name := ""
